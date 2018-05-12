@@ -7,10 +7,10 @@ GREEN = "g"
 RED = "r"
 GREY = "b"
 
-def set_colour(G, targets, colour):
+def update_nodes(G, targets, colour,label):
     #print("Setting colours of " + str(len(targets)) + " nodes to " + str(colour))
     for v in targets:
-        G.add_node(v, colour=colour)
+        G.add_node(v, colour=colour,label=str(label))
 
 def not_coloured(V):
     return V[1]["colour"] == GREY
@@ -24,7 +24,7 @@ def grey_nodes(G):
 def finished_graph(G):
     return len(grey_nodes(G)) == 0
 
-def reveal_node(G, V, pRed):
+def reveal_node(G, V, pRed,oracle_call):
     #TODO - Generalise the probability distribution?
     #print("Revealing node " + str(V))
     r = random.random()
@@ -32,12 +32,12 @@ def reveal_node(G, V, pRed):
         #print("Node is green!")
         to_colour = list(nx.algorithms.dag.descendants(G, V))
         to_colour.append(V)
-        set_colour(G, to_colour, GREEN)
+        update_nodes(G, to_colour, GREEN,oracle_call)
     else:
         #print("Node is red!")
         to_colour = list(nx.algorithms.dag.ancestors(G, V))
         to_colour.append(V)
-        set_colour(G, to_colour, RED)
+        update_nodes(G, to_colour, RED,oracle_call)
 
 def total_grey_parents(G, V):
     return len(filter(lambda x: not_coloured_ref(G,x), nx.algorithms.dag.ancestors(G, V)))
@@ -54,7 +54,7 @@ def play_game(DAG,pRed,strat):
     oracle_calls = 0
     while not finished_graph(DAG):
         oracle_calls += 1
-        reveal_node(DAG,strat(DAG),pRed)
+        reveal_node(DAG,strat(DAG),pRed,oracle_calls)
         #draw_graph(DAG)
     #draw_graph(DAG)
     #print("Total Oracle Calls: " + str(oracle_calls))
@@ -63,7 +63,7 @@ def play_game(DAG,pRed,strat):
 def get_starting_graph(generator):
     G = generator() #Tree
     DAG = nx.condensation(G)
-    set_colour(DAG,DAG.nodes(),GREY)
+    update_nodes(DAG,DAG.nodes(),GREY,"?")
     return DAG
     
 def run_experiment(trials):
