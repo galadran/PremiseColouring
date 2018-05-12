@@ -2,6 +2,7 @@ import networkx as nx
 import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import pdb
 
 GREEN = "g"
 RED = "r"
@@ -27,6 +28,7 @@ def finished_graph(G):
 def reveal_node(G, V, pRed,oracle_call):
     #TODO - Generalise the probability distribution?
     #print("Revealing node " + str(V))
+    G.add_node(V,font_weight='bold')
     r = random.random()
     if r >= pRed:
         #print("Node is green!")
@@ -46,8 +48,19 @@ def total_grey_children(G, V):
     return len(filter(lambda x: not_coloured_ref(G,x), nx.algorithms.dag.descendants(G, V)))
 
 def draw_graph(G):
-    values = [a[1]["colour"] for a in G.nodes(data=True)]
-    nx.draw(G,node_color=values)
+    pos = nx.drawing.nx_pydot.pydot_layout(G,prog='dot')
+    colours = [a[1]["colour"] for a in G.nodes(data=True)]
+    bold_nodes = {}
+    regular_nodes = {}
+    for n in G.nodes():
+        if "font_weight" in G.node[n].keys():
+            bold_nodes[n] = G.node[n]["label"]
+        else:
+            regular_nodes[n] = G.node[n]["label"]
+    nx.draw_networkx_nodes(G,pos,node_color=colours)
+    nx.draw_networkx_edges(G,pos)
+    nx.draw_networkx_labels(G,pos,labels=bold_nodes,font_size=18,font_weight='bold')
+    nx.draw_networkx_labels(G,pos,labels=regular_nodes,font_size=18)   
     plt.show()
 
 def play_game(DAG,pRed,strat):

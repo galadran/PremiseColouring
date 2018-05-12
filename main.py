@@ -47,7 +47,7 @@ stratDict = {
     "rand" : lambda x : strategies.strat_rand(x,args.pRed),
 }
 #print(stratDict)
-
+#TODO get this to work 
 #stratDict = {}
 #strat_prefix = "strat_"
 #strats = filter(lambda x: x[0].startswith(strat_prefix),inspect.getmembers(strategies, inspect.isfunction))
@@ -77,8 +77,7 @@ elif args.command == "visualise":
         print("There must be exactly one graph and exactly one strategy.")
         exit(-1)
     else:
-        #TODO Make this generate a pretty GIF?
-        #Probably best to switch to using GraphViz!
+        #TODO Add deterministic sampling for different strategies and then make subplot 
         print("Generating a " + args.graphs[0] + " graph with " + str(args.nodes) +" nodes.")
         print("Each node has a " + str(args.pRed) + " probability of being red.")
         print("The strategy is " + args.strategies[0])
