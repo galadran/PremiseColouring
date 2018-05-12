@@ -66,9 +66,7 @@ for s in args.strategies:
 if args.command == "experiment":
     trials = []
     for g in args.graphs:
-        for s in args.strategies:
-            name = g + ":" + s
-            t = (name,args.samples,args.pRed,graphDict[g],stratDict[s])
+            t = (g,args.samples,args.pRed,graphDict[g],map(lambda x: (x,stratDict[x]),args.strategies))
             trials.append(t)
     print("Running " + str(len(trials)) + " experiments with " + str(args.nodes) + " nodes, " + str(args.samples) + " samples" +            ", " + str(args.edges) + " edges and " + str(args.pRed) + " probability of a node being red.")
     run_experiment(trials)

@@ -2,6 +2,8 @@ import networkx as nx
 import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import strategies
+
 import pdb
 
 GREEN = "g"
@@ -25,12 +27,19 @@ def grey_nodes(G):
 def finished_graph(G):
     return len(grey_nodes(G)) == 0
 
-def reveal_node(G, V, pRed,oracle_call):
+def reveal_node(G, V, pRed,oracle_call,det=None):
     #TODO - Generalise the probability distribution?
     #print("Revealing node " + str(V))
     G.add_node(V,font_weight='bold')
-    r = random.random()
-    if r >= pRed:
+    isRed = False
+    if det is None:
+        r = random.random()
+        if r < pRed:
+            isRed = True
+    else:
+        pdb.set_trace()
+        isRed = det[V]['colour'] == RED
+    if not isRed:
         #print("Node is green!")
         to_colour = list(nx.algorithms.dag.descendants(G, V))
         to_colour.append(V)
@@ -63,16 +72,27 @@ def draw_graph(G):
     nx.draw_networkx_labels(G,pos,labels=regular_nodes,font_size=18)   
     plt.show()
 
-def play_game(DAG,pRed,strat):
+def play_game(DAG,pRed,strat,det=None):
     oracle_calls = 0
     while not finished_graph(DAG):
         oracle_calls += 1
-        reveal_node(DAG,strat(DAG),pRed,oracle_calls)
-        #draw_graph(DAG)
-    #draw_graph(DAG)
+        reveal_node(DAG,strat(DAG),pRed,oracle_calls,det)
     #print("Total Oracle Calls: " + str(oracle_calls))
     return oracle_calls
 
+def play_multi_game(DAG,pRed,strats,visualise=False):
+    GT = DAG.copy()
+    play_game(GT,pRed,lambda x: strategies.strat_rand(x,pRed))
+    results = []
+    for name,s in strats:
+        H = DAG.copy()
+        oracle_calls = play_game(H,pRed,s,det=GT)
+        if visualise:
+            results.append((name,oracle_calls,H))
+        else:
+            results.append((name,oracle_calls))
+    return results
+    
 def get_starting_graph(generator):
     G = generator() #Tree
     DAG = nx.condensation(G)
@@ -80,11 +100,17 @@ def get_starting_graph(generator):
     return DAG
     
 def run_experiment(trials):
-    #TODO Run each strategy over the same randomly generated graphs
     #TODO Make parallel?
-    for (name,samples,pRed,generator,strat) in trials:
-        results = []
+    for (name,samples,pRed,generator,strats) in trials:
+        raw_results = []
         for _ in tqdm(xrange(samples),leave=False):
             DAG = get_starting_graph(generator)
-            results.append(play_game(DAG,pRed,strat))
-        print(name +" avg="+str(sum(results)/len(results)) + " maxs="+str(max(results))+ " min="+str(min(results)))
+            raw_results.append(play_multi_game(DAG,pRed,strats))
+        counts = {}
+        for s,o in raw_results:
+            if s not in counts.keys:
+                counts[s] = []
+            counts[s].append(o)
+        for s in counts.keys():
+            results = counts[s]
+            print(name+":"+s+" avg="+str(sum(results)/len(results)) + " maxs="+str(max(results))+ " min="+str(min(results)))
