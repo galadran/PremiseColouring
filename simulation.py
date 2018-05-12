@@ -18,8 +18,11 @@ def not_coloured(V):
 def not_coloured_ref(G,V):
     return G.nodes[V]["colour"] == GREY
 
+def grey_nodes(G):
+    return filter(not_coloured, G.nodes(data=True))
+
 def finished_graph(G):
-    return len(filter(not_coloured, G.nodes(data=True))) == 0
+    return len(grey_nodes(G)) == 0
 
 def reveal_node(G, V, pRed):
     #TODO - Generalise the probability distribution?

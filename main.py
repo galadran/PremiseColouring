@@ -3,6 +3,7 @@
 import argparse
 import strategies 
 import networkx as nx
+import inspect
 from simulation import run_experiment,get_starting_graph,play_game,draw_graph
 
 parser = argparse.ArgumentParser(description="Evaluate strategies for lemmas in Tamarin")
@@ -45,6 +46,15 @@ stratDict = {
     "safe" : lambda x : strategies.strat_safe(x,args.pRed),
     "rand" : lambda x : strategies.strat_rand(x,args.pRed),
 }
+#print(stratDict)
+
+#stratDict = {}
+#strat_prefix = "strat_"
+#strats = filter(lambda x: x[0].startswith(strat_prefix),inspect.getmembers(strategies, inspect.isfunction))
+#for (name,fun) in strats:
+#    short_name = name.replace(strat_prefix,"")
+#    stratDict[short_name] = lambda x : fun(x,args.pRed)
+#print(stratDict)
 
 for s in args.strategies:
     if s == "any" or s == "*" or s == "all":

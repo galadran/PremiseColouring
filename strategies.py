@@ -1,5 +1,5 @@
 import random 
-from simulation import total_grey_parents,total_grey_children,not_coloured
+from simulation import total_grey_parents,total_grey_children,not_coloured,grey_nodes
 
 def expected_value(G, V, pRed):
     return pRed * total_grey_parents(G, V) + (1.0 - pRed) * total_grey_children(G,V) + 1
@@ -22,17 +22,19 @@ def get_max_E(targets,fun):
     #print("There are " + str(len(maximal)) + " nodes of maximal expected value " + str(max_seen))
     return maximal
 
+#Strategies must be named 'strat_' and take G, probability as a parameter
+
 def strat_rand(G,pRed):
-    return random.choice(list(filter(not_coloured,G.nodes(data=True))))[0]
+    return random.choice(list(grey_nodes(G)))[0]
 
 def strat_exp(G, pRed):
     #Pick any node with a maximal expected value
     fun = lambda x : expected_value(G,x,pRed)
-    return random.choice(list(get_max_E(filter(not_coloured,G.nodes(data=True)),fun)))
+    return random.choice(list(get_max_E(grey_nodes(G),fun)))
 
 def strat_safe(G,pRed):
     #Pick any node which safest (max min value), tie break on expected value
-    targets = filter(not_coloured,G.nodes(data=True))
+    targets = grey_nodes(G)
     fun = lambda x : min(total_grey_parents(G,x),total_grey_children(G,x))
     safe_targets = list(get_max_E(targets,fun))
     fun2 =  lambda x : expected_value(G,x,pRed)
@@ -41,7 +43,7 @@ def strat_safe(G,pRed):
 
 def strat_risk(G,pRed):
     #Pick any node with the highest expected value, tie break on safest
-    targets = filter(not_coloured,G.nodes(data=True))
+    targets = grey_nodes(G)
     fun = lambda x : expected_value(G,x,pRed)
     best_targets = list(get_max_E(targets,fun))
     fun2 = lambda x : min(total_grey_parents(G,x),total_grey_children(G,x))
