@@ -118,7 +118,7 @@ def countsToHist(name,counts):
         labels.append(strat)
         datasets.append(counts[strat])
     plt.figure()
-    plt.hist(datasets,label=labels,stacked=False,cumulative=True,normed=True)
+    plt.hist(datasets,label=labels,stacked=False,cumulative=True,normed=True) 
     plt.title("Graph Type: "+name)
     plt.xlabel("Oracle Calls")
     plt.ylabel("P(Finished at or before _)")
