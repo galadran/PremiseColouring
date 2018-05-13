@@ -37,8 +37,8 @@ def reveal_node(G, V, pRed,oracle_call,det=None):
         if r < pRed:
             isRed = True
     else:
-        pdb.set_trace()
-        isRed = det[V]['colour'] == RED
+        #pdb.set_trace()
+        isRed = det.nodes[V]['colour'] == RED
     if not isRed:
         #print("Node is green!")
         to_colour = list(nx.algorithms.dag.descendants(G, V))
@@ -58,7 +58,8 @@ def total_grey_children(G, V):
 
 def draw_graph(G):
     pos = nx.drawing.nx_pydot.pydot_layout(G,prog='dot')
-    colours = [a[1]["colour"] for a in G.nodes(data=True)]
+    colours = [a[1]["label"] for a in G.nodes(data=True)]
+    #colours = [a[1]["colour"] for a in G.nodes(data=True)]
     bold_nodes = {}
     regular_nodes = {}
     for n in G.nodes():
@@ -107,10 +108,11 @@ def run_experiment(trials):
             DAG = get_starting_graph(generator)
             raw_results.append(play_multi_game(DAG,pRed,strats))
         counts = {}
-        for s,o in raw_results:
-            if s not in counts.keys:
-                counts[s] = []
-            counts[s].append(o)
+        for r1 in raw_results:
+            for a,b in r1:
+                if a not in counts.keys():
+                    counts[a] = []
+                counts[a].append(b)
         for s in counts.keys():
             results = counts[s]
             print(name+":"+s+" avg="+str(sum(results)/len(results)) + " maxs="+str(max(results))+ " min="+str(min(results)))
