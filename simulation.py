@@ -99,7 +99,14 @@ def get_starting_graph(generator):
     DAG = nx.condensation(G)
     update_nodes(DAG,DAG.nodes(),GREY,"?")
     return DAG
-    
+
+def countsToHist(counts):
+    f, subplots = plt.subplots(1,len(counts.keys()),sharey=True)
+    for strat,plot in zip(counts.keys(),subplots):
+        plot.hist(counts[strat],label=strat)        
+        plot.legend()
+    plt.show()
+
 def run_experiment(trials):
     #TODO Make parallel?
     for (name,samples,pRed,generator,strats) in trials:
@@ -116,3 +123,4 @@ def run_experiment(trials):
         for s in counts.keys():
             results = counts[s]
             print(name+":"+s+" avg="+str(sum(results)/len(results)) + " maxs="+str(max(results))+ " min="+str(min(results)))
+        countsToHist(counts)
