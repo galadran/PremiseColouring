@@ -12,6 +12,8 @@ GREY = "b"
 
 def update_nodes(G, targets, colour,label):
     #print("Setting colours of " + str(len(targets)) + " nodes to " + str(colour))
+    if colour != GREY:
+        targets = filter(lambda x : not_coloured_ref(G,x),targets)
     for v in targets:
         G.add_node(v, colour=colour,label=str(label))
 
@@ -56,7 +58,7 @@ def total_grey_parents(G, V):
 def total_grey_children(G, V):
     return len(filter(lambda x: not_coloured_ref(G,x), nx.algorithms.dag.descendants(G, V)))
 
-def draw_graph(G):
+def draw_graph(name,G):
     pos = nx.drawing.nx_pydot.pydot_layout(G,prog='dot')
     colours = [a[1]["label"] for a in G.nodes(data=True)]
     #colours = [a[1]["colour"] for a in G.nodes(data=True)]
@@ -67,11 +69,13 @@ def draw_graph(G):
             bold_nodes[n] = G.node[n]["label"]
         else:
             regular_nodes[n] = G.node[n]["label"]
-    nx.draw_networkx_nodes(G,pos,node_color=colours)
-    nx.draw_networkx_edges(G,pos)
+    plt.figure()
+    nx.draw_networkx_nodes(G,pos,node_color=colours,node_size=800,cmap='Pastel1')
+    nx.draw_networkx_edges(G,pos,arrows=True)
     nx.draw_networkx_labels(G,pos,labels=bold_nodes,font_size=18,font_weight='bold')
     nx.draw_networkx_labels(G,pos,labels=regular_nodes,font_size=18)   
-    plt.show()
+    plt.title("Strategy Type: "+name)
+    plt.show(block=False)
 
 def play_game(DAG,pRed,strat,det=None):
     oracle_calls = 0

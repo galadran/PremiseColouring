@@ -4,7 +4,8 @@ import argparse
 import strategies 
 import networkx as nx
 import inspect
-from simulation import run_experiment,get_starting_graph,play_game,draw_graph
+from simulation import run_experiment,get_starting_graph,play_multi_game,draw_graph
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description="Evaluate strategies for lemmas in Tamarin")
 parser.add_argument("command",choices=["experiment","visualise"],default="experiment")
@@ -71,18 +72,19 @@ if args.command == "experiment":
     print("Running " + str(len(trials)) + " experiments with " + str(args.nodes) + " nodes, " + str(args.samples) + " samples" +            ", " + str(args.edges) + " edges and " + str(args.pRed) + " probability of a node being red.")
     run_experiment(trials)
 elif args.command == "visualise":
-    if len(args.graphs) != 1 or len(args.strategies) != 1:
-        print("There must be exactly one graph and exactly one strategy.")
+    if len(args.graphs) != 1 :
+        print("There must be exactly one graph family.")
         exit(-1)
     else:
-        #TODO Add deterministic sampling for different strategies and then make subplot 
         print("Generating a " + args.graphs[0] + " graph with " + str(args.nodes) +" nodes.")
         print("Each node has a " + str(args.pRed) + " probability of being red.")
-        print("The strategy is " + args.strategies[0])
         G = get_starting_graph(graphDict[args.graphs[0]])
-        calls = play_game(G,args.pRed,stratDict[args.strategies[0]])
-        print("Total oracle calls: " + str(calls))
-        draw_graph(G)
+        #TODO Make subplots for this!
+        results = play_multi_game(G,args.pRed,map(lambda x: (x,stratDict[x]),args.strategies),visualise=True)
+        for name,calls,H in results:
+            print("Strategy " + name + " finished after " + str(calls) + ".")
+            draw_graph(name,H)
+        plt.show()
 else:
     print("Unknown command " + args.command)
     exit(-1)
