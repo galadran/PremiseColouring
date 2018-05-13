@@ -88,11 +88,13 @@ def play_game(DAG,pRed,strat,det=None):
     #print("Total Oracle Calls: " + str(oracle_calls))
     return oracle_calls
 
-def play_multi_game(DAG,pRed,strats,visualise=False):
-    GT = DAG.copy()
-    play_game(GT,pRed,lambda x: strategies.strat_rand(x,pRed))
-    if visualise:
-        draw_graph("Test Graph","NA",GT,red_green=True)
+def play_multi_game(DAG,pRed,strats,visualise=False,alternate=False):
+    GT = None
+    if alternate:
+        GT = DAG.copy()
+        play_game(GT,pRed,lambda x: strategies.strat_rand(x,pRed))
+        if visualise:
+            draw_graph("Test Graph","NA",GT,red_green=True)
     results = []
     for name,s in strats:
         H = DAG.copy()
@@ -123,13 +125,13 @@ def countsToHist(name,counts):
     plt.legend()
     plt.show(block=False)
 
-def run_experiment(trials):
+def run_experiment(trials,alternate=False):
     #TODO Make parallel?
     for (name,samples,pRed,generator,strats) in trials:
         raw_results = []
         for _ in tqdm(xrange(samples),leave=False,desc="Simulating "+name+" graphs"):
             DAG = get_starting_graph(generator)
-            raw_results.append(play_multi_game(DAG,pRed,strats))
+            raw_results.append(play_multi_game(DAG,pRed,strats,alternate=alternate))
         counts = {}
         for r1 in raw_results:
             for a,b in r1:

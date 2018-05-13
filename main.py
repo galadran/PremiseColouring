@@ -15,6 +15,7 @@ parser.add_argument("--edges","-e",default=-1,type=int)
 parser.add_argument("--samples","-s",default=100,type=int)
 parser.add_argument("--distribution","-d",default=0.5,dest="pRed",type=float)
 parser.add_argument("--strategies","-a",nargs="*",default=["exp"])
+parser.add_argument("--alternate",action='store_true')
 args = parser.parse_args()
 
 if args.pRed < 0.0 or args.pRed > 1.0:
@@ -70,7 +71,7 @@ if args.command == "experiment":
             t = (g,args.samples,args.pRed,graphDict[g],map(lambda x: (x,stratDict[x]),args.strategies))
             trials.append(t)
     print("Running " + str(len(trials)) + " experiments with " + str(args.nodes) + " nodes, " + str(args.samples) + " samples" +            ", " + str(args.edges) + " edges and " + str(args.pRed) + " probability of a node being red.")
-    run_experiment(trials)
+    run_experiment(trials,alternate=args.alternate)
 elif args.command == "visualise":
     if len(args.graphs) != 1 :
         print("There must be exactly one graph family.")
@@ -80,7 +81,7 @@ elif args.command == "visualise":
         print("Each node has a " + str(args.pRed) + " probability of being red.")
         G = get_starting_graph(graphDict[args.graphs[0]])
         #TODO Make subplots for this!
-        results = play_multi_game(G,args.pRed,map(lambda x: (x,stratDict[x]),args.strategies),visualise=True)
+        results = play_multi_game(G,args.pRed,map(lambda x: (x,stratDict[x]),args.strategies),visualise=True,alternate=True)
         for name,calls,H in results:
             print("Strategy " + name + " finished after " + str(calls) + ".")
             draw_graph(name,calls,H)
