@@ -58,10 +58,13 @@ def total_grey_parents(G, V):
 def total_grey_children(G, V):
     return len(filter(lambda x: not_coloured_ref(G,x), nx.algorithms.dag.descendants(G, V)))
 
-def draw_graph(name,G):
+def draw_graph(name,calls,G,red_green=False):
     pos = nx.drawing.nx_pydot.pydot_layout(G,prog='dot')
-    colours = [a[1]["label"] for a in G.nodes(data=True)]
-    #colours = [a[1]["colour"] for a in G.nodes(data=True)]
+    colours = []
+    if red_green:
+        colours = [a[1]["colour"] for a in G.nodes(data=True)]
+    else:
+        colours = [a[1]["label"] for a in G.nodes(data=True)]
     bold_nodes = {}
     regular_nodes = {}
     for n in G.nodes():
@@ -74,7 +77,7 @@ def draw_graph(name,G):
     nx.draw_networkx_edges(G,pos,arrows=True)
     nx.draw_networkx_labels(G,pos,labels=bold_nodes,font_size=18,font_weight='bold')
     nx.draw_networkx_labels(G,pos,labels=regular_nodes,font_size=18)   
-    plt.title("Strategy Type: "+name)
+    plt.title("Strategy Type: "+name + " Total Calls: " + str(calls))
     plt.show(block=False)
 
 def play_game(DAG,pRed,strat,det=None):
@@ -88,6 +91,8 @@ def play_game(DAG,pRed,strat,det=None):
 def play_multi_game(DAG,pRed,strats,visualise=False):
     GT = DAG.copy()
     play_game(GT,pRed,lambda x: strategies.strat_rand(x,pRed))
+    if visualise:
+        draw_graph("Test Graph","NA",GT,red_green=True)
     results = []
     for name,s in strats:
         H = DAG.copy()

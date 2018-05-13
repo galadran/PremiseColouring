@@ -83,7 +83,7 @@ elif args.command == "visualise":
         results = play_multi_game(G,args.pRed,map(lambda x: (x,stratDict[x]),args.strategies),visualise=True)
         for name,calls,H in results:
             print("Strategy " + name + " finished after " + str(calls) + ".")
-            draw_graph(name,H)
+            draw_graph(name,calls,H)
         plt.show()
 else:
     print("Unknown command " + args.command)
