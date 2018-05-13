@@ -100,18 +100,25 @@ def get_starting_graph(generator):
     update_nodes(DAG,DAG.nodes(),GREY,"?")
     return DAG
 
-def countsToHist(counts):
-    f, subplots = plt.subplots(1,len(counts.keys()),sharey=True)
-    for strat,plot in zip(counts.keys(),subplots):
-        plot.hist(counts[strat],label=strat)        
-        plot.legend()
-    plt.show()
+def countsToHist(name,counts):
+    datasets = []
+    labels = []
+    for strat in counts.keys():
+        labels.append(strat)
+        datasets.append(counts[strat])
+    plt.figure()
+    plt.hist(datasets,label=labels,stacked=False,cumulative=True,normed=True)
+    plt.title("Graph Type: "+name)
+    plt.xlabel("Oracle Calls")
+    plt.ylabel("P(Finished at or before _)")
+    plt.legend()
+    plt.show(block=False)
 
 def run_experiment(trials):
     #TODO Make parallel?
     for (name,samples,pRed,generator,strats) in trials:
         raw_results = []
-        for _ in tqdm(xrange(samples),leave=False):
+        for _ in tqdm(xrange(samples),leave=False,desc="Simulating "+name+" graphs"):
             DAG = get_starting_graph(generator)
             raw_results.append(play_multi_game(DAG,pRed,strats))
         counts = {}
@@ -123,4 +130,5 @@ def run_experiment(trials):
         for s in counts.keys():
             results = counts[s]
             print(name+":"+s+" avg="+str(sum(results)/len(results)) + " maxs="+str(max(results))+ " min="+str(min(results)))
-        countsToHist(counts)
+        countsToHist(name,counts)
+    plt.show()
