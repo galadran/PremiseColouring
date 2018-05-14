@@ -18,6 +18,9 @@ parser.add_argument("--strategies","-a",nargs="*",default=["exp"],help="The type
 parser.add_argument("--alternate",action='store_true',help="In alternate mode, the graphs are generated and filled in by a random algorithm which changes the distribution significally.")
 args = parser.parse_args()
 
+#TODO Add a "enumerate colourings" mode where we generate one graph and test every possible colouring?
+
+
 if args.pRed < 0.0 or args.pRed > 1.0:
     print("Probability of being red must be between 0 and 1.0")
     exit(-1)
